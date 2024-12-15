@@ -1,14 +1,14 @@
 import re
 import calculCercle
-from writer import abstractWriter
+from translator import abstractTranslator
 
 class HReader():
 
-    writer: abstractWriter = None
+    
     blk_form_01 = []
 
     def __init__(self,writer) -> None:
-        self.writer = writer
+        self.writer:abstractTranslator = writer
 
     
     def isRapid(self,ligne:str):
@@ -28,9 +28,9 @@ class HReader():
         
     
     def sensCercle(self,ligne:str):
-        if ligne.find("DR-"):
+        if "DR-" in ligne:
             return -1
-        elif ligne.find("DR+"):
+        elif "DR+" in ligne:
             return 1
         else:
             return 0
@@ -51,13 +51,13 @@ class HReader():
             temp = ligne.split(" ")
             self.pgmTitle = temp[0]
             self.mm =  temp[1].startswith("MM")
-            self.writer.writeEntete(temp[0]+"\n")
+            return self.writer.writeEntete(temp[0]+"\n")
 
-            return
+            
         
         if ligne.startswith(";"):
-            self.writer.writeCommentaire(ligne.removeprefix(";"))
-            return
+            return self.writer.writeCommentaire(ligne.removeprefix(";"))
+            
         
         if patternBLKFORM1.match(ligne):
             nouvelle_ligne = re.sub(r'^BLK FORM 0.1 Z\s*','',ligne)
@@ -65,7 +65,7 @@ class HReader():
             result = re.findall(r'([a-zA-Z])([+-]?\d+)',nouvelle_ligne)
             global blk_form_01
             blk_form_01 = {lettre: int(nombre) for lettre, nombre in result}
-            return
+            return 
         
         if patternBLKFORM2.match(ligne):
 
@@ -73,16 +73,16 @@ class HReader():
             result = re.findall(r'([a-zA-Z])([+-]?\d+)',nouvelle_ligne)  
             blk_form_02 = {lettre: int(nombre) for lettre, nombre in result} 
 
-            self.writer.writeBLKFORM(blk_form_01,blk_form_02)
-            return
+            return self.writer.writeBLKFORM(blk_form_01,blk_form_02)
+            
         
         if patternTOOLCALL.match(ligne):
             nouvelle_ligne = re.sub(r'^TOOL CALL\s*','',ligne)
             tool_id = nouvelle_ligne[0]
             result = re.findall(r'([a-zA-Z]+)([+-]?\d+)',nouvelle_ligne) 
             param ={lettre: int(nombre) for lettre, nombre in result} 
-            self.writer.writeTCall(tool_id,param=param)
-            return
+            return self.writer.writeTCall(tool_id,param=param)
+            
         
         if patternL.match(ligne):
             nouvelle_ligne = re.sub(r'^L\s*','',ligne)
@@ -100,8 +100,8 @@ class HReader():
             param["RAPID"] = self.isRapid(nouvelle_ligne)
             param ["R"] = self.corrRayon(nouvelle_ligne)
 
-            self.writer.writeLine(param=param)
-            return
+            return self.writer.writeLine(param=param)
+            
         
         if ligne.startswith("CR"):
             ligne = ligne.removeprefix("CR")
@@ -114,23 +114,22 @@ class HReader():
                     param[groupe + str(nombre)] = nombre 
                 else: 
                     param[groupe] = float(nombre)
-            param ["DR"] = self.sensCercle(ligne)
-            self.writer.writeCircle(param=param)
-            return
+            param["DR"] = self.sensCercle(ligne)
+            return self.writer.writeCircle(param=param)
+            
         
         if ligne.startswith("CC"):
             ligne = ligne.removeprefix("CC")
             result = re.findall(r'([a-zA-Z]+)([+-]?\d+\.\d+|[+-]?\d+)',ligne) 
             self.cc = result
-            
-            return 
+            return
+             
         
         if ligne.startswith("M"):
-            self.writer.ecrire_fichier(ligne)
-            return
+            return ligne
         if ligne.startswith('\n'): 
-            self.writer.ecrire_fichier("\n")
-            return
+            
+            return "\n"
         
         self.writer.unimplemented(ligne)
 

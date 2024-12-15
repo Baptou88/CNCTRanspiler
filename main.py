@@ -1,7 +1,9 @@
 
-from writer import Siemens
+from translator import Siemens
 from H_Reader import HReader
 import sys
+
+from writer import Writer
 
 def print_progress_bar(iteration, total, prefix='', suffix='', decimals=1, length=50, fill='█'):
     """
@@ -27,8 +29,9 @@ def print_progress_bar(iteration, total, prefix='', suffix='', decimals=1, lengt
 
 if __name__ == '__main__':
 
-    writer = Siemens()
-    reader = HReader(writer)
+    translator = Siemens()
+    reader = HReader(translator)
+    writer = Writer()
 
     with open('Nouveau dossier/NoName.h', 'r') as fichier:
         # Calculer le nombre total de lignes 
@@ -38,7 +41,7 @@ if __name__ == '__main__':
             #print(f"{i+1}/{total_lines}")
             print_progress_bar(i + 1, total_lines, prefix='Progress:', suffix='Complete', length=50)
             
-            reader.convert(ligne) 
+            writer.ecrire_fichier(reader.convert(ligne)) 
 
     #convert("4545 L X+10 Y-50")
     #convert("4546 L Y+0")
