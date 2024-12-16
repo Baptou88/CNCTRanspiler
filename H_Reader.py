@@ -149,6 +149,17 @@ class HReader():
             return self.writer.writeCircle(param=param,cc=self.cc)
         if ligne.startswith("M"):
             return ligne
+        if ligne.startswith("R0 FMAX M5"):
+            return "G40\nM5\n"
+        if ligne.startswith(f"CALL PGM TNC:\\FIN"):
+            return "CALL FIN.SPF\n"
+        if ligne.startswith("CYCL DEF 247"):
+            return 
+        if ligne.startswith("    Q339= +"):
+            ligne = ligne.replace('    Q339= +','')
+            num_origine = int(ligne[0])
+            return f"G{54+num_origine}\n"
+            return 
         if ligne.startswith('\n'): 
             
             return "\n"

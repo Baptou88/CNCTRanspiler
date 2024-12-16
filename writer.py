@@ -1,9 +1,9 @@
 class Writer:
 
-    nom_fichier = 'Nouveau dossier/out7751.spf'
-    def __init__(self) -> None:
+    nom_fichier = 'default'
+    def __init__(self,nomFichier) -> None:
+        self.nom_fichier = nomFichier
         self.ouvrir_fichier()
-
 
     def ouvrir_fichier(self): 
         try: 

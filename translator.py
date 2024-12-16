@@ -45,6 +45,7 @@ class Siemens(abstractTranslator):
     def writeBLKFORM(self,min,max):
         retour =  (f"min: {min}\n"
                    f"max: {max}")
+        
         return retour
        
 
@@ -53,7 +54,7 @@ class Siemens(abstractTranslator):
         retour +=      f"M6\n"
         if 'S' in param:
             f"S{param['S']}"
-        retour += "\n"
+            retour += "\n"
         return retour
 
     def writeCommentaire(self,commentaire:str):

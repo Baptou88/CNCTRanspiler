@@ -31,7 +31,7 @@ if __name__ == '__main__':
 
     translator = Siemens()
     reader = HReader(translator)
-    writer = Writer()
+    writer = Writer('Nouveau dossier/out7751.spf')
 
     try:
         # with open('Nouveau dossier/NoName.h', 'r') as fichier:
