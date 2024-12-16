@@ -1,7 +1,11 @@
 class Writer:
 
     nom_fichier = 'default'
-    def __init__(self,nomFichier) -> None:
+    ligne = 10
+    inc_ligne = 10
+
+    def __init__(self,nomFichier,lignifie = False ) -> None:
+        self.lignifie = lignifie
         self.nom_fichier = nomFichier
         self.ouvrir_fichier()
 
@@ -11,12 +15,21 @@ class Writer:
         except IOError as e: 
             print(f"Erreur lors de l'ouverture du fichier {self.nom_fichier} : {e}") 
 
-    def ecrire_fichier(self, contenu): 
+    def ecrire_fichier(self, contenu:str): 
         if contenu == None:
             return
         if self.fichier: 
             try: 
-                self.fichier.write(contenu) 
+                lignes = contenu.splitlines()
+                for l in contenu.splitlines():
+
+                    if self.lignifie:
+                        self.fichier.write(f"{self.ligne} {l}\n") 
+                        self.ligne += 10
+                    
+                    else:
+
+                        self.fichier.write(f"{l}\n") 
                 #print(f"Contenu écrit dans {self.nom_fichier}.") 
             except IOError as e: 
                 print(f"Erreur lors de l'écriture dans le fichier {self.nom_fichier} : {e}") 

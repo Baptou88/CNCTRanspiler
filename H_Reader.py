@@ -2,12 +2,13 @@ import re
 import calculCercle
 from translator import abstractTranslator
 
+
 class HReader():
 
     
     blk_form_01 = []
 
-    def __init__(self,writer) -> None:
+    def __init__(self,writer:abstractTranslator) -> None:
         self.writer:abstractTranslator = writer
 
     
@@ -35,6 +36,24 @@ class HReader():
         else:
             return 0
 
+
+    def CleValeur(self,char:str)->dict:
+        result =  re.findall(r'([a-zA-Z]+)([-+]?\d*\,?\d*\.?\d*)', char)
+        param = {}
+
+        for groupe, nombre in result: 
+            if groupe.startswith('M'): 
+                param[groupe + str(nombre)] = nombre 
+            #elif groupe =='F': 
+                #param[groupe + str(nombre)] = nombre 
+            else: 
+                if nombre != '':
+                    param[groupe] = float(nombre.replace(',', '.'))
+
+
+        param["RAPID"] = self.isRapid(char)
+        param ["R"] = self.corrRayon(char)
+        return param
     
     def convert(self,ligne):
 
@@ -57,21 +76,35 @@ class HReader():
         
         if ligne.startswith(";"):
             return self.writer.writeCommentaire(ligne.removeprefix(";"))
+        
+        if ligne.startswith("* -   "):
+            msg = ligne.removeprefix("* -   ").replace('\n','')
+            return f"MSG(\"{msg}\")\n"
             
         
         if patternBLKFORM1.match(ligne):
             nouvelle_ligne = re.sub(r'^BLK FORM 0.1 Z\s*','',ligne)
             
-            result = re.findall(r'([a-zA-Z])([+-]?\d+)',nouvelle_ligne)
+            result = re.findall(r'([a-zA-Z]+)([-+]?\d*\,?\d*\.?\d*)',nouvelle_ligne)
+            param = {}
+            for groupe, nombre in result:
+                if nombre != '':
+                        param[groupe] = float(nombre.replace(',', '.'))
             global blk_form_01
-            blk_form_01 = {lettre: int(nombre) for lettre, nombre in result}
+            # blk_form_01 = {lettre: float(nombre) for lettre, nombre in result}
+            blk_form_01 = param
             return 
         
         if patternBLKFORM2.match(ligne):
 
             nouvelle_ligne = re.sub(r'^BLK FORM 0.2\s*','',ligne)
-            result = re.findall(r'([a-zA-Z])([+-]?\d+)',nouvelle_ligne)  
-            blk_form_02 = {lettre: int(nombre) for lettre, nombre in result} 
+            result = re.findall(r'([a-zA-Z]+)([-+]?\d*\,?\d*\.?\d*)',nouvelle_ligne)
+            param = {}
+            for groupe, nombre in result:
+                if nombre != '':
+                        param[groupe] = float(nombre.replace(',', '.'))  
+            #blk_form_02 = {lettre: int(nombre) for lettre, nombre in result} 
+            blk_form_02 = param
 
             return self.writer.writeBLKFORM(blk_form_01,blk_form_02)
             
