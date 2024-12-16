@@ -49,9 +49,12 @@ class Siemens(abstractTranslator):
        
 
     def writeTCall(self,t,param):
-        return (f"T=\"{t}\" D1\n"
-                f"M6\n"
-                f"S{param['S']}\n")
+        retour = (f"T=\"{t}\" D1\n")
+        retour +=      f"M6\n"
+        if 'S' in param:
+            f"S{param['S']}"
+        retour += "\n"
+        return retour
 
     def writeCommentaire(self,commentaire:str):
         return(f";;{commentaire}")
@@ -89,17 +92,23 @@ class Siemens(abstractTranslator):
         for cle  in param:
             if cle.startswith("M") :
                 ligne += " M" + str(param[cle])
+            elif cle.startswith("F") and cle != "FMAX":
+                ligne += " F" + str(param[cle])
         return(ligne+"\n")
         
-    def writeCircle(self,param):
-        centre = calculCercle.calculer_centre(
-            self.currentX,
-            self.currentY,
-            param['X'],
-            param['Y'],
-            param['R'],
-            "horaire" if param['DR'] < 0 else "antihoraire"
-            )
+    def writeCircle(self,param,cc=None):
+        if cc == None:
+            cc= {}
+            centre = calculCercle.calculer_centre(
+                self.currentX,
+                self.currentY,
+                param['X'],
+                param['Y'],
+                param['R'],
+                "horaire" if param['DR'] < 0 else "antihoraire"
+                )
+            cc['X'] = centre[0]
+            cc['Y'] = centre[1]
         if param['DR'] > 0:
             retour = "G03"
         else:
@@ -107,4 +116,4 @@ class Siemens(abstractTranslator):
 
         self.currentX = param['X']
         self.currentY = param['Y']
-        return(f"{retour} X{param['X']} Y{param['Y']} I{centre[0]:.4f} J{centre[1]:.4f}\n")
+        return(f"{retour} X{param['X']} Y{param['Y']} I=AC({cc['X']:.4f}) J=AC({cc['Y']:.4f})\n")

@@ -33,15 +33,19 @@ if __name__ == '__main__':
     reader = HReader(translator)
     writer = Writer()
 
-    with open('Nouveau dossier/NoName.h', 'r') as fichier:
-        # Calculer le nombre total de lignes 
-        total_lines = sum(1 for line in fichier) 
-        fichier.seek(0) # Revenir au début du fichier
-        for i, ligne in enumerate(fichier):
-            #print(f"{i+1}/{total_lines}")
-            print_progress_bar(i + 1, total_lines, prefix='Progress:', suffix='Complete', length=50)
-            
-            writer.ecrire_fichier(reader.convert(ligne)) 
+    try:
+        # with open('Nouveau dossier/NoName.h', 'r') as fichier:
+        with open(r'\\192.168.1.10\Dnc\Supervision\Atelier\DMC64V\L7751.h', 'r') as fichier:
+            # Calculer le nombre total de lignes 
+            total_lines = sum(1 for line in fichier) 
+            fichier.seek(0) # Revenir au début du fichier
+            for i, ligne in enumerate(fichier):
+                #print(f"{i+1}/{total_lines}")
+                print_progress_bar(i + 1, total_lines, prefix='Progress:', suffix='Complete', length=50)
+                
+                writer.ecrire_fichier(reader.convert(ligne)) 
+    except ValueError as e:
+        writer.ecrire_fichier(f"erreur {e} ligne {i}")
 
     #convert("4545 L X+10 Y-50")
     #convert("4546 L Y+0")

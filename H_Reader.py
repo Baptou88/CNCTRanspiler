@@ -86,15 +86,18 @@ class HReader():
         
         if patternL.match(ligne):
             nouvelle_ligne = re.sub(r'^L\s*','',ligne)
-            result = re.findall(r'([a-zA-Z]+)([+-]?\d+\.\d+|[+-]?\d+)',nouvelle_ligne) 
-
+            #result = re.findall(r'([a-zA-Z]+)([+-]?\d+\.\d+|[+-]?\d+)',nouvelle_ligne) 
+            result =  re.findall(r'([a-zA-Z]+)([-+]?\d*\,?\d*\.?\d*)', nouvelle_ligne)
             param = {}
 
             for groupe, nombre in result: 
                 if groupe.startswith('M'): 
                     param[groupe + str(nombre)] = nombre 
+                #elif groupe =='F': 
+                    #param[groupe + str(nombre)] = nombre 
                 else: 
-                    param[groupe] = float(nombre)
+                    if nombre != '':
+                        param[groupe] = float(nombre.replace(',', '.'))
 
 
             param["RAPID"] = self.isRapid(nouvelle_ligne)
@@ -105,31 +108,50 @@ class HReader():
         
         if ligne.startswith("CR"):
             ligne = ligne.removeprefix("CR")
-            result = re.findall(r'([a-zA-Z]+)([+-]?\d+\.\d+|[+-]?\d+)',ligne) 
-
+            #result = re.findall(r'([a-zA-Z]+)([+-]?\d+\.\d+|[+-]?\d+)',ligne) 
+            result =  re.findall(r'([a-zA-Z]+)([-+]?\d*\,?\d*\.?\d*)', ligne)
             param = {}
 
             for groupe, nombre in result: 
                 if groupe.startswith('M'): 
                     param[groupe + str(nombre)] = nombre 
                 else: 
-                    param[groupe] = float(nombre)
+                    if nombre not in ['','+','-']:
+                        param[groupe] = float(nombre.replace(',', '.'))
+                    
             param["DR"] = self.sensCercle(ligne)
             return self.writer.writeCircle(param=param)
             
         
         if ligne.startswith("CC"):
             ligne = ligne.removeprefix("CC")
-            result = re.findall(r'([a-zA-Z]+)([+-]?\d+\.\d+|[+-]?\d+)',ligne) 
-            self.cc = result
+            #result = re.findall(r'([a-zA-Z]+)([+-]?\d+\.\d+|[+-]?\d+)',ligne) 
+            result =  re.findall(r'([a-zA-Z]+)([-+]?\d*\,?\d*\.?\d*)', ligne)
+            param = {}
+            for groupe, nombre in result:
+                param[groupe] = float(nombre.replace(',', '.'))
+            self.cc = param
             return
-             
         
+        if ligne.startswith("C "):
+            ligne = ligne.removeprefix("C ")     
+            result =  re.findall(r'([a-zA-Z]+)([-+]?\d*\,?\d*\.?\d*)', ligne)
+            param = {}
+
+            for groupe, nombre in result: 
+                if groupe.startswith('M'): 
+                    param[groupe + str(nombre)] = nombre 
+                else: 
+                    if nombre not in ['','+','-']:
+                        param[groupe] = float(nombre.replace(',', '.'))
+                    
+            param["DR"] = self.sensCercle(ligne)
+            return self.writer.writeCircle(param=param,cc=self.cc)
         if ligne.startswith("M"):
             return ligne
         if ligne.startswith('\n'): 
             
             return "\n"
         
-        self.writer.unimplemented(ligne)
+        return self.writer.unimplemented(ligne)
 

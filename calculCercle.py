@@ -10,7 +10,7 @@ def calculer_centre(x1, y1, x2, y2, r, sens_rotation):
 
     # Vérifier que la distance est inférieure ou égale à deux fois le rayon
     if d > 2 * r:
-        raise ValueError("Les points sont trop éloignés pour former un cercle avec le rayon donné")
+        raise ValueError(f"Les points sont trop éloignés pour former un cercle avec le rayon donné ")
 
     # Distance du milieu au centre du cercle
     h = math.sqrt(r**2 - (d / 2)**2)
